@@ -1,60 +1,44 @@
-// GANTI dengan URL Web App dari Google Apps Script Anda!
-const scriptURL = 'https://script.google.com/macros/s/AKfycbxV9uldsI06OiXLzKyFm9IaBxWfkd56eLtJs7LPxTxFpQMZ-OtNA5zCsQ_9zQ_zaQrZMg/exec;'
+// GANTI dengan URL Web App dari Google Apps Script Anda
+const scriptURL = 'https://script.google.com/macros/s/AKfycbztBI3DmdYClVVAdV6MlIbsU84hyxlVKZoWI9H7ZVs15DlvfOeKZK2xCrwbuOv4pmUF/exec';
 
-const form = document.getElementById('attendanceForm');
-const btn = document.getElementById('submitBtn');
-const msg = document.getElementById('message');
-
-// Set tanggal otomatis ke hari ini
-document.getElementById('tanggal').valueAsDate = new Date();
+const form = document.getElementById('absensiForm');
+const btn = document.getElementById('btnSubmit');
 
 form.addEventListener('submit', e => {
     e.preventDefault();
     
-    // Efek Loading
+    // Matikan tombol agar tidak terjadi double-input
     btn.disabled = true;
-    btn.innerText = "SEDANG MENGIRIM...";
-    
-    const payload = {
-        tanggal: document.getElementById('tanggal').value,
-        nama: document.getElementById('nama').value,
-        kelas: document.getElementById('kelas').value,
-        status: document.getElementById('status').value,
-        materi: document.getElementById('materi').value
-    };
+    btn.innerText = "Memproses...";
 
-    // Menggunakan Fetch API untuk mengirim data
-    fetch(scriptURL, {
-        method: 'POST',
-        mode: 'no-cors', // Penting untuk bypass CORS Google Script
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(() => {
-        showStatus("DATA BERHASIL DIINPUT! ✅", "success");
-        form.reset();
-        document.getElementById('tanggal').valueAsDate = new Date();
-    })
-    .catch(error => {
-        showStatus("GAGAL MENGIRIM! ❌", "error");
-        console.error('Error!', error.message);
-    })
-    .finally(() => {
-        btn.disabled = false;
-        btn.innerText = "KIRIM KE CLOUD ⚡";
+    // Mengambil Waktu Saat Ini secara Otomatis
+    const sekarang = new Date();
+    
+    // Format Hari (Senin, Selasa, dst)
+    const hari = sekarang.toLocaleDateString('id-ID', { weekday: 'long' });
+    
+    // Format Tanggal Lengkap (2 Februari 2026)
+    const tanggalFull = sekarang.toLocaleDateString('id-ID', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
     });
-});
 
-function showStatus(text, type) {
-    msg.innerText = text;
-    msg.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
-    
-    if (type === "success") {
-        msg.classList.add('bg-green-100', 'text-green-700');
-    } else {
-        msg.classList.add('bg-red-100', 'text-red-700');
-    }
-    
-    // Hilangkan pesan setelah 5 detik
-    setTimeout(() => msg.classList.add('hidden'), 5000);
-}
+    const formData = new FormData(form);
+    formData.append('hari', hari);
+    formData.append('tanggal', tanggalFull);
+
+    // Kirim data ke Google Sheets
+    fetch(scriptURL, { method: 'POST', body: formData})
+        .then(response => {
+            alert("Absensi Berhasil! Data sudah tersimpan di Google Sheets.");
+            btn.disabled = false;
+            btn.innerText = "Kirim Kehadiran";
+            form.reset(); // Kosongkan form kembali
+        })
+        .catch(error => {
+            alert("Terjadi kesalahan koneksi: " + error.message);
+            btn.disabled = false;
+            btn.innerText = "Kirim Kehadiran";
+        });
+});
