@@ -1,5 +1,5 @@
 // GANTI dengan URL Web App dari Google Apps Script Anda!
-const scriptURL = 'https://docs.google.com/spreadsheets/d/1op-ixpafwfDZFtqTTNkFKm6UL0DLCjuS4wzRQSsbZq0/edit?usp=drivesdk';
+const scriptURL = https://script.google.com/macros/s/AKfycbxET6k1DxeRJfTXGSGwVrlqSXif2YWWmGj3njWuauNzb0fSzQDfzRQlcG3aBAI9dySAtQ/exec;
 
 const form = document.getElementById('attendanceForm');
 const btn = document.getElementById('submitBtn');
